@@ -1,5 +1,7 @@
+import DevicesListPage from './pages/DevicesListPage.jsx'
+
 function App() {
-  return <h1>Servisna radionica</h1>
+  return <DevicesListPage />
 }
 
 export default App
