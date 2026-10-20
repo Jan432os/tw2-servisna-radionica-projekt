@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
 import { filterByType, searchDevices, sortDevices, paginate } from '../logic/deviceFilters.js'
 
@@ -131,7 +132,7 @@ function DevicesListPage() {
             <tbody>
               {pageItems.map((device) => (
                 <tr key={device.id}>
-                  <td>{device.brand}</td>
+                  <td><Link to={`/devices/${device.id}`}>{device.brand}</Link></td>
                   <td>{device.model}</td>
                   <td>{device.type}</td>
                   <td>{device.serialNumber}</td>
