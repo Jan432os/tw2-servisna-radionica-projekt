@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
 
 function DeviceDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [status, setStatus] = useState('loading')
   const [device, setDevice] = useState(null)
   const [error, setError] = useState(null)
@@ -22,6 +23,16 @@ function DeviceDetailPage() {
       })
   }, [id])
 
+  function handleDelete() {
+    const confirmed = window.confirm('Sigurno želite obrisati ovaj uređaj? Brišu se i njegovi radni nalozi.')
+    if (!confirmed) return
+
+    devicesService
+      .remove(id)
+      .then(() => navigate('/devices'))
+      .catch((err) => setError(err))
+  }
+
   if (status === 'loading') return <p>Učitavanje...</p>
   if (status === 'error') return <p role="alert">{error.message}</p>
 
@@ -34,6 +45,8 @@ function DeviceDetailPage() {
       <p>Klijent: {device.client?.name} ({device.client?.email})</p>
 
       <nav>
+        <Link to={`/devices/${id}/edit`}>Uredi</Link>{' '}
+        <button type="button" onClick={handleDelete}>Obriši</button>{' '}
         <NavLink to="work-orders">Radni nalozi</NavLink>
       </nav>
 

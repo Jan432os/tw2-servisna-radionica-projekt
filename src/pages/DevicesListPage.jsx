@@ -68,6 +68,7 @@ function DevicesListPage() {
   return (
     <div>
       <h1>Uređaji</h1>
+      <p><Link to="/devices/new">+ Novi uređaj</Link></p>
 
       <div>
         <label htmlFor="search">Pretraga</label>
