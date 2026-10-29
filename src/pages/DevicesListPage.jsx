@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
 import { filterByType, searchDevices, sortDevices, paginate } from '../logic/deviceFilters.js'
+import { useAuth } from '../store/AuthContext.jsx'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const PER_PAGE_OPTIONS = [10, 20, 50]
@@ -14,6 +15,7 @@ const COLUMNS = [
 ]
 
 function DevicesListPage() {
+  const { user } = useAuth()
   const [status, setStatus] = useState('idle')
   const [devices, setDevices] = useState([])
   const [error, setError] = useState(null)
@@ -68,7 +70,8 @@ function DevicesListPage() {
   return (
     <div>
       <h1>Uređaji</h1>
-      <p><Link to="/devices/new">+ Novi uređaj</Link></p>
+
+      {user ? <p><Link to="/devices/new">+ Novi uređaj</Link></p> : null}
 
       <div>
         <label htmlFor="search">Pretraga</label>

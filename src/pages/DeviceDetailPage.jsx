@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
+import { useAuth } from '../store/AuthContext.jsx'
 
 function DeviceDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [status, setStatus] = useState('loading')
   const [device, setDevice] = useState(null)
   const [error, setError] = useState(null)
@@ -45,8 +47,12 @@ function DeviceDetailPage() {
       <p>Klijent: {device.client?.name} ({device.client?.email})</p>
 
       <nav>
-        <Link to={`/devices/${id}/edit`}>Uredi</Link>{' '}
-        <button type="button" onClick={handleDelete}>Obriši</button>{' '}
+        {user ? (
+          <>
+            <Link to={`/devices/${id}/edit`}>Uredi</Link>{' '}
+            <button type="button" onClick={handleDelete}>Obriši</button>{' '}
+          </>
+        ) : null}
         <NavLink to="work-orders">Radni nalozi</NavLink>
       </nav>
 
