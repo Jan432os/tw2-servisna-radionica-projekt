@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import * as devicesService from '../services/devices.js'
 import * as clientsService from '../services/clients.js'
+import { createDevice, updateDevice } from '../store/devicesSlice.js'
 import { validateDevice } from '../logic/deviceValidation.js'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
@@ -11,6 +13,7 @@ function DeviceFormPage() {
   const { id } = useParams()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [status, setStatus] = useState(isEdit ? 'loading' : 'idle')
   const [error, setError] = useState(null)
@@ -58,9 +61,10 @@ function DeviceFormPage() {
     const payload = { ...values, clientId: Number(values.clientId) }
 
     setIsSubmitting(true)
-    const request = isEdit ? devicesService.update(id, payload) : devicesService.create(payload)
+    const action = isEdit ? updateDevice({ id, data: payload }) : createDevice(payload)
 
-    request
+    dispatch(action)
+      .unwrap()
       .then((device) => navigate(`/devices/${device.id}`))
       .catch((err) => {
         if (err.kind === 'validation' && err.fields) {

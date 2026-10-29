@@ -1,8 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { useAuth } from '../store/AuthContext.jsx'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../store/authSlice.js'
 
 function Layout() {
-  const { user, logout } = useAuth()
+  const user = useSelector((state) => state.auth.user)
+  const dispatch = useDispatch()
 
   return (
     <div>
@@ -12,7 +14,7 @@ function Layout() {
           {user ? (
             <>
               <span>Prijavljen: {user.name}</span>{' '}
-              <button type="button" onClick={logout}>Odjava</button>
+              <button type="button" onClick={() => dispatch(logout())}>Odjava</button>
             </>
           ) : (
             <NavLink to="/login">Prijava</NavLink>

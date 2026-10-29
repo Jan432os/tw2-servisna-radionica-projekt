@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import * as devicesService from '../services/devices.js'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchDevices } from '../store/devicesSlice.js'
 import { filterByType, searchDevices, sortDevices, paginate } from '../logic/deviceFilters.js'
-import { useAuth } from '../store/AuthContext.jsx'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const PER_PAGE_OPTIONS = [10, 20, 50]
@@ -15,10 +15,12 @@ const COLUMNS = [
 ]
 
 function DevicesListPage() {
-  const { user } = useAuth()
-  const [status, setStatus] = useState('idle')
-  const [devices, setDevices] = useState([])
-  const [error, setError] = useState(null)
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.auth.user)
+  const devices = useSelector((state) => state.devices.items)
+  const status = useSelector((state) => state.devices.status)
+  const loaded = useSelector((state) => state.devices.loaded)
+  const error = useSelector((state) => state.devices.error)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -28,25 +30,17 @@ function DevicesListPage() {
   const [perPage, setPerPage] = useState(10)
 
   useEffect(() => {
-    setStatus('loading')
-    devicesService
-      .getAll({ _embed: 'client' })
-      .then((data) => {
-        setDevices(data)
-        setStatus('success')
-      })
-      .catch((err) => {
-        setError(err)
-        setStatus('error')
-      })
-  }, [])
+    if (!loaded) {
+      dispatch(fetchDevices())
+    }
+  }, [loaded, dispatch])
 
-  if (status === 'idle' || status === 'loading') {
+  if (!loaded && status === 'loading') {
     return <p>Učitavanje...</p>
   }
 
   if (status === 'error') {
-    return <p role="alert">{error.message}</p>
+    return <p role="alert">{error}</p>
   }
 
   const filtered = filterByType(devices, typeFilter)

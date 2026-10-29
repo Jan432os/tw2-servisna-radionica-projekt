@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import * as devicesService from '../services/devices.js'
-import { useAuth } from '../store/AuthContext.jsx'
+import { removeDevice } from '../store/devicesSlice.js'
 
 function DeviceDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.auth.user)
   const [status, setStatus] = useState('loading')
   const [device, setDevice] = useState(null)
   const [error, setError] = useState(null)
@@ -29,8 +31,8 @@ function DeviceDetailPage() {
     const confirmed = window.confirm('Sigurno želite obrisati ovaj uređaj? Brišu se i njegovi radni nalozi.')
     if (!confirmed) return
 
-    devicesService
-      .remove(id)
+    dispatch(removeDevice(id))
+      .unwrap()
       .then(() => navigate('/devices'))
       .catch((err) => setError(err))
   }

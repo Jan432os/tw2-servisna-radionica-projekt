@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../store/AuthContext.jsx'
+import { useDispatch, useSelector } from 'react-redux'
+import { login } from '../store/authSlice.js'
 
 function LoginPage() {
-  const { login, status, error } = useAuth()
+  const dispatch = useDispatch()
+  const status = useSelector((state) => state.auth.status)
+  const error = useSelector((state) => state.auth.error)
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -13,7 +16,8 @@ function LoginPage() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    login({ email, password })
+    dispatch(login({ email, password }))
+      .unwrap()
       .then(() => navigate(from, { replace: true }))
       .catch(() => {})
   }
@@ -22,7 +26,7 @@ function LoginPage() {
     <div>
       <h1>Prijava</h1>
 
-      {error ? <p role="alert">{error.message}</p> : null}
+      {error ? <p role="alert">{error}</p> : null}
 
       <form onSubmit={handleSubmit} noValidate>
         <div>
