@@ -19,23 +19,35 @@ function LoginPage() {
   }
 
   return (
-    <div>
+    <div className="col-12 col-md-6 col-lg-4">
       <h1>Prijava</h1>
 
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? <p className="text-danger" role="alert">{error}</p> : null}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div>
-          <label htmlFor="email">E-pošta</label>
-          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">E-pošta</label>
+          <input
+            id="email"
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
 
-        <div>
-          <label htmlFor="password">Lozinka</label>
-          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Lozinka</label>
+          <input
+            id="password"
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
 
-        <button type="submit" disabled={status === 'loading'}>
+        <button type="submit" className="btn btn-primary" disabled={status === 'loading'}>
           {status === 'loading' ? 'Prijava...' : 'Prijavi se'}
         </button>
       </form>

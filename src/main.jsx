@@ -5,6 +5,7 @@ import { Provider } from 'react-redux'
 import { store } from './store/store.js'
 import { restoreSession } from './store/authSlice.js'
 import './index.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import App from './App.jsx'
 
 if (localStorage.getItem('token')) {

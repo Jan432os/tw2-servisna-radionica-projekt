@@ -41,7 +41,7 @@ function DevicesListPage() {
   }
 
   if (status === 'error') {
-    return <p role="alert">{error}</p>
+    return <p className="text-danger" role="alert">{error}</p>
   }
 
   const filtered = filterByType(devices, typeFilter)
@@ -66,87 +66,114 @@ function DevicesListPage() {
     <div>
       <h1>Uređaji</h1>
 
-      {user ? <p><Link to="/devices/new">+ Novi uređaj</Link></p> : null}
+      {user ? (
+        <p><Link className="btn btn-primary btn-sm" to="/devices/new">+ Novi uređaj</Link></p>
+      ) : null}
 
-      <div>
-        <label htmlFor="search">Pretraga</label>
-        <input
-          id="search"
-          type="text"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value)
-            setPage(1)
-          }}
-          placeholder="Proizvođač, model, serijski broj ili klijent"
-        />
+      <div className="row g-2 mb-3">
+        <div className="col-12 col-md-5">
+          <label htmlFor="search" className="form-label">Pretraga</label>
+          <input
+            id="search"
+            type="text"
+            className="form-control"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setPage(1)
+            }}
+            placeholder="Proizvođač, model, serijski broj ili klijent"
+          />
+        </div>
 
-        <label htmlFor="type-filter">Vrsta</label>
-        <select
-          id="type-filter"
-          value={typeFilter}
-          onChange={(e) => {
-            setTypeFilter(e.target.value)
-            setPage(1)
-          }}
-        >
-          <option value="">Sve vrste</option>
-          {DEVICE_TYPES.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+        <div className="col-6 col-md-4">
+          <label htmlFor="type-filter" className="form-label">Vrsta</label>
+          <select
+            id="type-filter"
+            className="form-select"
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">Sve vrste</option>
+            {DEVICE_TYPES.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="per-page">Po stranici</label>
-        <select
-          id="per-page"
-          value={perPage}
-          onChange={(e) => {
-            setPerPage(Number(e.target.value))
-            setPage(1)
-          }}
-        >
-          {PER_PAGE_OPTIONS.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
+        <div className="col-6 col-md-3">
+          <label htmlFor="per-page" className="form-label">Po stranici</label>
+          <select
+            id="per-page"
+            className="form-select"
+            value={perPage}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value))
+              setPage(1)
+            }}
+          >
+            {PER_PAGE_OPTIONS.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {totalItems === 0 ? (
         <p>Nema pronađenih uređaja za zadane uvjete.</p>
       ) : (
         <>
-          <table>
-            <thead>
-              <tr>
-                {COLUMNS.map((column) => (
-                  <th key={column.key}>
-                    <button type="button" onClick={() => handleSort(column.key)}>
-                      {column.label}
-                      {sortKey === column.key ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-                    </button>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {pageItems.map((device) => (
-                <tr key={device.id}>
-                  <td><Link to={`/devices/${device.id}`}>{device.brand}</Link></td>
-                  <td>{device.model}</td>
-                  <td>{device.type}</td>
-                  <td>{device.serialNumber}</td>
-                  <td>{device.client?.name}</td>
+          <div className="table-responsive">
+            <table className="table table-striped table-hover align-middle">
+              <thead>
+                <tr>
+                  {COLUMNS.map((column) => (
+                    <th key={column.key}>
+                      <button
+                        type="button"
+                        className="btn btn-link p-0 text-decoration-none fw-bold"
+                        onClick={() => handleSort(column.key)}
+                      >
+                        {column.label}
+                        {sortKey === column.key ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pageItems.map((device) => (
+                  <tr key={device.id}>
+                    <td><Link to={`/devices/${device.id}`}>{device.brand}</Link></td>
+                    <td>{device.model}</td>
+                    <td>{device.type}</td>
+                    <td>{device.serialNumber}</td>
+                    <td>{device.client?.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-          <div>
-            <button type="button" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(currentPage - 1)}
+            >
               Prethodna
             </button>
-            <span> Stranica {currentPage} / {totalPages} ({totalItems} uređaja) </span>
-            <button type="button" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+            <span>Stranica {currentPage} / {totalPages} ({totalItems} uređaja)</span>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(currentPage + 1)}
+            >
               Sljedeća
             </button>
           </div>

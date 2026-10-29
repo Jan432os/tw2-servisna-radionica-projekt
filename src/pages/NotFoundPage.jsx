@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 
 function NotFoundPage() {
   return (
-    <div>
+    <div className="text-center py-5">
       <h1>Stranica ne postoji</h1>
-      <p><Link to="/devices">Natrag na popis uređaja</Link></p>
+      <p><Link className="btn btn-primary" to="/devices">Natrag na popis uređaja</Link></p>
     </div>
   )
 }

@@ -26,7 +26,7 @@ function DeviceDetailPage() {
   }
 
   if (status === 'loading') return <p>Učitavanje...</p>
-  if (status === 'error') return <p role="alert">{error.message}</p>
+  if (status === 'error') return <p className="text-danger" role="alert">{error.message}</p>
 
   return (
     <div>
@@ -35,16 +35,16 @@ function DeviceDetailPage() {
       <p>Vrsta: {device.type}</p>
       <p>Serijski broj: {device.serialNumber}</p>
       <p>Klijent: {device.client?.name} ({device.client?.email})</p>
-      {deleteError ? <p role="alert">{deleteError.message}</p> : null}
+      {deleteError ? <p className="text-danger" role="alert">{deleteError.message}</p> : null}
 
-      <nav>
+      <nav className="d-flex gap-2 mb-3">
         {user ? (
           <>
-            <Link to={`/devices/${id}/edit`}>Uredi</Link>{' '}
-            <button type="button" onClick={handleDelete}>Obriši</button>{' '}
+            <Link className="btn btn-secondary btn-sm" to={`/devices/${id}/edit`}>Uredi</Link>
+            <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete}>Obriši</button>
           </>
         ) : null}
-        <NavLink to="work-orders">Radni nalozi</NavLink>
+        <NavLink className="btn btn-outline-primary btn-sm" to="work-orders">Radni nalozi</NavLink>
       </nav>
 
       <Outlet />
