@@ -5,6 +5,7 @@ import * as devicesService from '../services/devices.js'
 import * as clientsService from '../services/clients.js'
 import { createDevice, updateDevice } from '../store/devicesSlice.js'
 import { validateDevice } from '../logic/deviceValidation.js'
+import { useFetch } from '../hooks/useFetch.js'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const EMPTY_FORM = { clientId: '', type: '', brand: '', model: '', serialNumber: '' }
@@ -15,36 +16,28 @@ function DeviceFormPage() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const [status, setStatus] = useState(isEdit ? 'loading' : 'idle')
-  const [error, setError] = useState(null)
-  const [clients, setClients] = useState([])
+  const { data: clients } = useFetch(() => clientsService.getAll(), [])
+  const { status: loadStatus, data: existingDevice, error: loadError } = useFetch(
+    () => (isEdit ? devicesService.getOne(id) : Promise.resolve(null)),
+    [id, isEdit],
+  )
+
   const [values, setValues] = useState(EMPTY_FORM)
   const [fieldErrors, setFieldErrors] = useState({})
+  const [submitError, setSubmitError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    clientsService.getAll().then(setClients).catch(() => setClients([]))
-  }, [])
-
-  useEffect(() => {
-    if (!isEdit) return
-    devicesService
-      .getOne(id)
-      .then((device) => {
-        setValues({
-          clientId: String(device.clientId),
-          type: device.type,
-          brand: device.brand,
-          model: device.model,
-          serialNumber: device.serialNumber,
-        })
-        setStatus('success')
+    if (existingDevice) {
+      setValues({
+        clientId: String(existingDevice.clientId),
+        type: existingDevice.type,
+        brand: existingDevice.brand,
+        model: existingDevice.model,
+        serialNumber: existingDevice.serialNumber,
       })
-      .catch((err) => {
-        setError(err)
-        setStatus('error')
-      })
-  }, [id, isEdit])
+    }
+  }, [existingDevice])
 
   function handleChange(field) {
     return (e) => setValues((prev) => ({ ...prev, [field]: e.target.value }))
@@ -70,27 +63,27 @@ function DeviceFormPage() {
         if (err.kind === 'validation' && err.fields) {
           setFieldErrors(err.fields)
         } else {
-          setError(err)
+          setSubmitError(err)
         }
       })
       .finally(() => setIsSubmitting(false))
   }
 
-  if (isEdit && status === 'loading') return <p>Učitavanje...</p>
-  if (isEdit && status === 'error') return <p role="alert">{error.message}</p>
+  if (isEdit && loadStatus === 'loading') return <p>Učitavanje...</p>
+  if (isEdit && loadStatus === 'error') return <p role="alert">{loadError.message}</p>
 
   return (
     <div>
       <h1>{isEdit ? 'Uređivanje uređaja' : 'Novi uređaj'}</h1>
 
-      {error ? <p role="alert">{error.message}</p> : null}
+      {submitError ? <p role="alert">{submitError.message}</p> : null}
 
       <form onSubmit={handleSubmit} noValidate>
         <div>
           <label htmlFor="clientId">Klijent</label>
           <select id="clientId" value={values.clientId} onChange={handleChange('clientId')}>
             <option value="">Odaberite klijenta</option>
-            {clients.map((client) => (
+            {(clients ?? []).map((client) => (
               <option key={client.id} value={client.id}>{client.name}</option>
             ))}
           </select>

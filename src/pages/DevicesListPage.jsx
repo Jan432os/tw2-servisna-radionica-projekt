@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDevices } from '../store/devicesSlice.js'
 import { filterByType, searchDevices, sortDevices, paginate } from '../logic/deviceFilters.js'
+import { useAuth } from '../hooks/useAuth.js'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const PER_PAGE_OPTIONS = [10, 20, 50]
@@ -15,8 +16,8 @@ const COLUMNS = [
 ]
 
 function DevicesListPage() {
+  const { user } = useAuth()
   const dispatch = useDispatch()
-  const user = useSelector((state) => state.auth.user)
   const devices = useSelector((state) => state.devices.items)
   const status = useSelector((state) => state.devices.status)
   const loaded = useSelector((state) => state.devices.loaded)

@@ -1,31 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import * as devicesService from '../services/devices.js'
 import { removeDevice } from '../store/devicesSlice.js'
+import { useFetch } from '../hooks/useFetch.js'
+import { useAuth } from '../hooks/useAuth.js'
 
 function DeviceDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const user = useSelector((state) => state.auth.user)
-  const [status, setStatus] = useState('loading')
-  const [device, setDevice] = useState(null)
-  const [error, setError] = useState(null)
+  const { user } = useAuth()
+  const [deleteError, setDeleteError] = useState(null)
 
-  useEffect(() => {
-    setStatus('loading')
-    devicesService
-      .getOne(id)
-      .then((data) => {
-        setDevice(data)
-        setStatus('success')
-      })
-      .catch((err) => {
-        setError(err)
-        setStatus('error')
-      })
-  }, [id])
+  const { status, data: device, error } = useFetch(() => devicesService.getOne(id), [id])
 
   function handleDelete() {
     const confirmed = window.confirm('Sigurno želite obrisati ovaj uređaj? Brišu se i njegovi radni nalozi.')
@@ -34,7 +22,7 @@ function DeviceDetailPage() {
     dispatch(removeDevice(id))
       .unwrap()
       .then(() => navigate('/devices'))
-      .catch((err) => setError(err))
+      .catch((err) => setDeleteError(err))
   }
 
   if (status === 'loading') return <p>Učitavanje...</p>
@@ -47,6 +35,7 @@ function DeviceDetailPage() {
       <p>Vrsta: {device.type}</p>
       <p>Serijski broj: {device.serialNumber}</p>
       <p>Klijent: {device.client?.name} ({device.client?.email})</p>
+      {deleteError ? <p role="alert">{deleteError.message}</p> : null}
 
       <nav>
         {user ? (

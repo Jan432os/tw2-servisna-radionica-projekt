@@ -1,30 +1,14 @@
-import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
+import { useFetch } from '../hooks/useFetch.js'
 
 function DeviceWorkOrdersPage() {
   const { id } = useParams()
-  const [status, setStatus] = useState('loading')
-  const [orders, setOrders] = useState([])
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    setStatus('loading')
-    devicesService
-      .getWorkOrders(id)
-      .then((data) => {
-        setOrders(data)
-        setStatus(data.length === 0 ? 'empty' : 'success')
-      })
-      .catch((err) => {
-        setError(err)
-        setStatus('error')
-      })
-  }, [id])
+  const { status, data: orders, error } = useFetch(() => devicesService.getWorkOrders(id), [id])
 
   if (status === 'loading') return <p>Učitavanje naloga...</p>
   if (status === 'error') return <p role="alert">{error.message}</p>
-  if (status === 'empty') return <p>Ovaj uređaj još nema radnih naloga.</p>
+  if (orders.length === 0) return <p>Ovaj uređaj još nema radnih naloga.</p>
 
   return (
     <table>

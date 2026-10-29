@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { login } from '../store/authSlice.js'
+import { useAuth } from '../hooks/useAuth.js'
 
 function LoginPage() {
-  const dispatch = useDispatch()
-  const status = useSelector((state) => state.auth.status)
-  const error = useSelector((state) => state.auth.error)
+  const { login, status, error } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -16,8 +13,7 @@ function LoginPage() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    dispatch(login({ email, password }))
-      .unwrap()
+    login({ email, password })
       .then(() => navigate(from, { replace: true }))
       .catch(() => {})
   }
