@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchDevices } from '../store/devicesSlice.js'
 import { filterByType, searchDevices, sortDevices, paginate } from '../logic/deviceFilters.js'
 import { useAuth } from '../hooks/useAuth.js'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import Pagination from '../components/Pagination.jsx'
+import SortableHeader from '../components/SortableHeader.jsx'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const PER_PAGE_OPTIONS = [10, 20, 50]
@@ -41,8 +44,13 @@ function DevicesListPage() {
   }
 
   if (status === 'error') {
-    return <p className="text-danger" role="alert">{error}</p>
+    return <ErrorMessage message={error} />
   }
+
+  const countsByType = devices.reduce((acc, device) => {
+    acc[device.type] = (acc[device.type] ?? 0) + 1
+    return acc
+  }, {})
 
   const filtered = filterByType(devices, typeFilter)
   const searched = searchDevices(filtered, searchTerm)
@@ -65,6 +73,11 @@ function DevicesListPage() {
   return (
     <div>
       <h1>Uređaji</h1>
+
+      <p className="text-muted small">
+        Ukupno {devices.length} uređaja — po vrsti:{' '}
+        {Object.entries(countsByType).map(([type, count]) => `${type}: ${count}`).join(', ')}
+      </p>
 
       {user ? (
         <p><Link className="btn btn-primary btn-sm" to="/devices/new">+ Novi uređaj</Link></p>
@@ -131,16 +144,14 @@ function DevicesListPage() {
               <thead>
                 <tr>
                   {COLUMNS.map((column) => (
-                    <th key={column.key}>
-                      <button
-                        type="button"
-                        className="btn btn-link p-0 text-decoration-none fw-bold"
-                        onClick={() => handleSort(column.key)}
-                      >
-                        {column.label}
-                        {sortKey === column.key ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
-                      </button>
-                    </th>
+                    <SortableHeader
+                      key={column.key}
+                      label={column.label}
+                      sortKey={column.key}
+                      currentSortKey={sortKey}
+                      direction={sortDirection}
+                      onSort={handleSort}
+                    />
                   ))}
                 </tr>
               </thead>
@@ -158,25 +169,13 @@ function DevicesListPage() {
             </table>
           </div>
 
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-secondary btn-sm"
-              disabled={currentPage <= 1}
-              onClick={() => setPage(currentPage - 1)}
-            >
-              Prethodna
-            </button>
-            <span>Stranica {currentPage} / {totalPages} ({totalItems} uređaja)</span>
-            <button
-              type="button"
-              className="btn btn-outline-secondary btn-sm"
-              disabled={currentPage >= totalPages}
-              onClick={() => setPage(currentPage + 1)}
-            >
-              Sljedeća
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPrev={() => setPage(currentPage - 1)}
+            onNext={() => setPage(currentPage + 1)}
+          />
         </>
       )}
     </div>

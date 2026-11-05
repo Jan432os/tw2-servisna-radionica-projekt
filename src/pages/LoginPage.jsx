@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import FormField from '../components/FormField.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
 
 function LoginPage() {
   const { login, status, error } = useAuth()
@@ -22,30 +24,11 @@ function LoginPage() {
     <div className="col-12 col-md-6 col-lg-4">
       <h1>Prijava</h1>
 
-      {error ? <p className="text-danger" role="alert">{error}</p> : null}
+      {error ? <ErrorMessage message={error} /> : null}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">E-pošta</label>
-          <input
-            id="email"
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Lozinka</label>
-          <input
-            id="password"
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <FormField id="email" label="E-pošta" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <FormField id="password" label="Lozinka" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
         <button type="submit" className="btn btn-primary" disabled={status === 'loading'}>
           {status === 'loading' ? 'Prijava...' : 'Prijavi se'}

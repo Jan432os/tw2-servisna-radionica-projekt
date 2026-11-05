@@ -1,13 +1,14 @@
 import { useParams } from 'react-router-dom'
 import * as devicesService from '../services/devices.js'
 import { useFetch } from '../hooks/useFetch.js'
+import ErrorMessage from '../components/ErrorMessage.jsx'
 
 function DeviceWorkOrdersPage() {
   const { id } = useParams()
   const { status, data: orders, error } = useFetch(() => devicesService.getWorkOrders(id), [id])
 
   if (status === 'loading') return <p>Učitavanje naloga...</p>
-  if (status === 'error') return <p className="text-danger" role="alert">{error.message}</p>
+  if (status === 'error') return <ErrorMessage message={error.message} />
   if (orders.length === 0) return <p>Ovaj uređaj još nema radnih naloga.</p>
 
   return (

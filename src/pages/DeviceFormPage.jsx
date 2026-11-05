@@ -6,6 +6,9 @@ import * as clientsService from '../services/clients.js'
 import { createDevice, updateDevice } from '../store/devicesSlice.js'
 import { validateDevice } from '../logic/deviceValidation.js'
 import { useFetch } from '../hooks/useFetch.js'
+import FormField from '../components/FormField.jsx'
+import SelectField from '../components/SelectField.jsx'
+import ErrorMessage from '../components/ErrorMessage.jsx'
 
 const DEVICE_TYPES = ['laptop', 'phone', 'tablet', 'desktop', 'console']
 const EMPTY_FORM = { clientId: '', type: '', brand: '', model: '', serialNumber: '' }
@@ -70,56 +73,63 @@ function DeviceFormPage() {
   }
 
   if (isEdit && loadStatus === 'loading') return <p>Učitavanje...</p>
-  if (isEdit && loadStatus === 'error') return <p role="alert">{loadError.message}</p>
+  if (isEdit && loadStatus === 'error') return <ErrorMessage message={loadError.message} />
+
+  const clientOptions = (clients ?? []).map((client) => ({ value: client.id, label: client.name }))
+  const typeOptions = DEVICE_TYPES.map((type) => ({ value: type, label: type }))
 
   return (
-    <div>
+    <div className="col-12 col-md-8 col-lg-6">
       <h1>{isEdit ? 'Uređivanje uređaja' : 'Novi uređaj'}</h1>
 
-      {submitError ? <p role="alert">{submitError.message}</p> : null}
+      {submitError ? <ErrorMessage message={submitError.message} /> : null}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div>
-          <label htmlFor="clientId">Klijent</label>
-          <select id="clientId" value={values.clientId} onChange={handleChange('clientId')}>
-            <option value="">Odaberite klijenta</option>
-            {(clients ?? []).map((client) => (
-              <option key={client.id} value={client.id}>{client.name}</option>
-            ))}
-          </select>
-          {fieldErrors.clientId ? <p role="alert">{fieldErrors.clientId}</p> : null}
-        </div>
+        <SelectField
+          id="clientId"
+          label="Klijent"
+          value={values.clientId}
+          onChange={handleChange('clientId')}
+          options={clientOptions}
+          placeholder="Odaberite klijenta"
+          error={fieldErrors.clientId}
+        />
 
-        <div>
-          <label htmlFor="type">Vrsta</label>
-          <select id="type" value={values.type} onChange={handleChange('type')}>
-            <option value="">Odaberite vrstu</option>
-            {DEVICE_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-          {fieldErrors.type ? <p role="alert">{fieldErrors.type}</p> : null}
-        </div>
+        <SelectField
+          id="type"
+          label="Vrsta"
+          value={values.type}
+          onChange={handleChange('type')}
+          options={typeOptions}
+          placeholder="Odaberite vrstu"
+          error={fieldErrors.type}
+        />
 
-        <div>
-          <label htmlFor="brand">Proizvođač</label>
-          <input id="brand" type="text" value={values.brand} onChange={handleChange('brand')} />
-          {fieldErrors.brand ? <p role="alert">{fieldErrors.brand}</p> : null}
-        </div>
+        <FormField
+          id="brand"
+          label="Proizvođač"
+          value={values.brand}
+          onChange={handleChange('brand')}
+          error={fieldErrors.brand}
+        />
 
-        <div>
-          <label htmlFor="model">Model</label>
-          <input id="model" type="text" value={values.model} onChange={handleChange('model')} />
-          {fieldErrors.model ? <p role="alert">{fieldErrors.model}</p> : null}
-        </div>
+        <FormField
+          id="model"
+          label="Model"
+          value={values.model}
+          onChange={handleChange('model')}
+          error={fieldErrors.model}
+        />
 
-        <div>
-          <label htmlFor="serialNumber">Serijski broj</label>
-          <input id="serialNumber" type="text" value={values.serialNumber} onChange={handleChange('serialNumber')} />
-          {fieldErrors.serialNumber ? <p role="alert">{fieldErrors.serialNumber}</p> : null}
-        </div>
+        <FormField
+          id="serialNumber"
+          label="Serijski broj"
+          value={values.serialNumber}
+          onChange={handleChange('serialNumber')}
+          error={fieldErrors.serialNumber}
+        />
 
-        <button type="submit" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? 'Spremanje...' : 'Spremi'}
         </button>
       </form>

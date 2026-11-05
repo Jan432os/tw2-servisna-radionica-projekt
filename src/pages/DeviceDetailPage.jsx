@@ -5,6 +5,8 @@ import * as devicesService from '../services/devices.js'
 import { removeDevice } from '../store/devicesSlice.js'
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
+import ErrorMessage from '../components/ErrorMessage.jsx'
+import ConfirmButton from '../components/ConfirmButton.jsx'
 
 function DeviceDetailPage() {
   const { id } = useParams()
@@ -16,9 +18,6 @@ function DeviceDetailPage() {
   const { status, data: device, error } = useFetch(() => devicesService.getOne(id), [id])
 
   function handleDelete() {
-    const confirmed = window.confirm('Sigurno želite obrisati ovaj uređaj? Brišu se i njegovi radni nalozi.')
-    if (!confirmed) return
-
     dispatch(removeDevice(id))
       .unwrap()
       .then(() => navigate('/devices'))
@@ -26,7 +25,7 @@ function DeviceDetailPage() {
   }
 
   if (status === 'loading') return <p>Učitavanje...</p>
-  if (status === 'error') return <p className="text-danger" role="alert">{error.message}</p>
+  if (status === 'error') return <ErrorMessage message={error.message} />
 
   return (
     <div>
@@ -35,13 +34,19 @@ function DeviceDetailPage() {
       <p>Vrsta: {device.type}</p>
       <p>Serijski broj: {device.serialNumber}</p>
       <p>Klijent: {device.client?.name} ({device.client?.email})</p>
-      {deleteError ? <p className="text-danger" role="alert">{deleteError.message}</p> : null}
+      {deleteError ? <ErrorMessage message={deleteError.message} /> : null}
 
       <nav className="d-flex gap-2 mb-3">
         {user ? (
           <>
             <Link className="btn btn-secondary btn-sm" to={`/devices/${id}/edit`}>Uredi</Link>
-            <button type="button" className="btn btn-danger btn-sm" onClick={handleDelete}>Obriši</button>
+            <ConfirmButton
+              className="btn btn-danger btn-sm"
+              confirmMessage="Sigurno želite obrisati ovaj uređaj? Brišu se i njegovi radni nalozi."
+              onConfirm={handleDelete}
+            >
+              Obriši
+            </ConfirmButton>
           </>
         ) : null}
         <NavLink className="btn btn-outline-primary btn-sm" to="work-orders">Radni nalozi</NavLink>
