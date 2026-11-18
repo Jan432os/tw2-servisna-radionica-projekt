@@ -14,6 +14,14 @@ export class RequestError extends Error {
   }
 }
 
+// Sloj stanja se ovdje prijavi da želi znati za istek prijave.
+// Tako servisni sloj ne mora uvoziti Redux store i nema kružne ovisnosti.
+let onUnauthorized = () => {}
+
+export function setUnauthorizedHandler(handler) {
+  onUnauthorized = handler
+}
+
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
@@ -37,6 +45,18 @@ client.interceptors.response.use(
     const { status, data } = error.response
 
     if (status === 401) {
+      // 401 bez tokena znači neuspjelu prijavu, a 401 s tokenom istekao token.
+      if (!localStorage.getItem('token')) {
+        throw new RequestError({
+          message: data?.message ?? 'Prijava nije uspjela.',
+          kind: 'validation',
+          status,
+        })
+      }
+
+      localStorage.removeItem('token')
+      onUnauthorized()
+
       throw new RequestError({
         message: 'Prijava je istekla. Prijavite se ponovno.',
         kind: 'auth',
