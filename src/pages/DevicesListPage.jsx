@@ -39,6 +39,11 @@ function DevicesListPage() {
     }
   }, [loaded, dispatch])
 
+    if (status === 'idle') {
+    return <p>Popis uređaja još nije dohvaćen.</p>
+  }
+
+
   if (!loaded && status === 'loading') {
     return <p>Učitavanje...</p>
   }
